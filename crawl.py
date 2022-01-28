@@ -28,8 +28,6 @@ def lottoDataRangeLoader(start, end, queueData):
 if __name__ == '__main__':
     freeze_support()
     reqNum = 10
-    processList = []
-    lottoData = Queue()
 
     for pid in range(math.ceil(latestDrwNo / reqNum)):
         start = pid * reqNum + 1
@@ -37,14 +35,25 @@ if __name__ == '__main__':
             end = latestDrwNo + 1
         else:
             end = start + reqNum
-        proc = Process(target=lottoDataRangeLoader, args=(start, end, lottoData))
-        proc.start()
-        processList.append(proc)
+        processList = []
+        lottoData = Queue()
+        for reqId in range(start, end):
+            proc = Process(target=lottoDataRangeLoader, args=(reqId, reqId + 1, lottoData))
+            proc.start()
+            processList.append(proc)
+        
+        for proc in processList:
+            proc.join()
+        
+        while not lottoData.empty():
+            print(lottoData.get())
+        
+        break
 
-    print("wait process...")
-    for proc in processList:
-        proc.join()
-    print("all process done!")
+    # print("wait process...")
+    # for proc in processList:
+    #     proc.join()
+    # print("all process done!")
 
-    for idx in range(len(processList)):
-        print(lottoData.get())
+    # for idx in range(len(processList)):
+    #     print(lottoData.get())
